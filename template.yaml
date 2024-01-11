@@ -1,0 +1,35 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Description: >
+  buy
+  Sample SAM Template for buy
+Globals:
+  Function:
+    Timeout: 5
+    MemorySize: 128
+    Runtime: go1.x
+    Architectures:
+      - x86_64    
+
+Resources:
+  buy:
+    Type: AWS::Serverless::Function # More info about Function Resource: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#awsserverlessfunction
+    Properties:
+      CodeUri: consumer/cmd
+      Handler: buy
+      Events:
+        MySQSEvent:
+          Type: SQS
+          Properties:
+            Queue: arn:aws:sqs:us-west-1:763564070137:points_manager
+      Environment:
+        Variables:
+          QUEUE_URL: https://sqs.us-west-1.amazonaws.com/763564070137/buy_manager
+          SERVICE_URL: https://5kxj8tvbu9.execute-api.us-west-1.amazonaws.com/Prod/buy
+      Policies:
+        - Version: 2012-10-17
+          Statement:
+            - Effect: Allow
+              Action: sqs:ReceiveMessage
+              Resource: arn:aws:sqs:us-west-1:763564070137:buy_manager
+              
